@@ -6,6 +6,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
 ```
 
 
@@ -65,5 +66,58 @@ All the skills needed for the Turing test would allow an agent to act rationally
 * How does the mind arise from a physical brain? 
 * Where does knowledge come from? 
 * How does knowledge lead to action? 
+
+## 1.2.2 | Mathematics 
+
+* What are the formal rules to draw valid conclusions? 
+* What can be computed? 
+* How do we reason with uncertain information?
+
+The first nontrivial algorithm is thought to be Euclid's algorithm for computing greatest common divisors
+
+```{python}
+# Euclid's Algorithm 
+def gcd(a, b):
+  if (b == 0):
+    return a
+  else: 
+    return gcd(b, a%b)
+
+# results
+print(gcd(9999, 888))
+```
+
+## 1.2.3 | Economics 
+
+* How should we make decisions so as to maximize payoff? 
+* How should we do this when others may not go along? 
+* How should we do this when the payoff may be far in the future? 
+
+Decision theory (combining probability with utility theory) provides a formal framework for decisions made under uncertainty. This is suitable for cases where probabilistic descriptions appropriately capture the decisiom maker's environment. This is suitable for 'large' economies where each agent need pay no attention to the actions of other agents as individuals. 
+
+For small economies, the situation is more like a game (theory), and the actions of one player can significantly affect the utility of another.
+
+For the third question, we must understand how to make rational decisions when payoffs result from actions taken in sequence. This is the field of operations research. 
+
+### 1.2.4 | Neuroscience 
+
+* How do brains process information? 
+
+### 1.2.5 | Psychology 
+
+* How do humans and animals think and act? 
+
+### 1.2.6 | Computer Engineering 
+
+* How can we build an efficient computer? 
+
+### 1.2.7 | Control Theory and Cybernetics 
+
+* How can artifacts operate under their own control? 
+
+### 1.2.8 | Linguistics 
+
+* How does language relate to thought? 
+
 
 
