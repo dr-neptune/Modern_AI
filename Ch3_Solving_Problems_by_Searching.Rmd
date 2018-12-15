@@ -220,5 +220,94 @@ A second, slightly stronger condition called **consistency** (or **monotonicity*
   $h(n) \leq c(n, a, n') + h(n')$
 \end{center}
  
+This is a form of the general **triangle inequality**. 
  
- 
+### Optimality of A* 
+
+The tree search version of A* is optimal is $h(n)$ is admissible, while the graph search version is optimal if $h(n)$ is consistent. 
+
+Proof of the second claim: 
+
+We first want to establish the following: if $h(n)$ is consistent, then the values of $f(n)$ along any path are nondecreasing. This follows directly from the definition of consistency. 
+
+Suppose $n'$ is a successor of $n$. Then $g(n') = g(n) + c(n, a, n')$ for some action $a$. Then we have 
+
+\begin{center}
+  $f(n') = g(n') + h(n') = g(n) + c(n, a, n') + h(n') \geq g(n) + h(n) = f(n)$
+\end{center}
+
+Thus the values of $f(n)$ along any path are nondecreasing. 
+
+Next we wish to prove that whenever A* selects a node $n$ for expansion, the optimal path to that node has been found. 
+
+If this were not the case, there would be another frontier node $n'$ on the optimal path from the start node to $n$, by the graph seperation property. Because $f$ is nondecreasing along any path, $n'$ would have lower $f$-cost than $n$ and would have been selected first. 
+
+By the two preceding observations, it follows that the sequence of nodes expanded by A* using Graph Search is in nondecreasing order of $f(n)$. Hence, the first goal node selected for expansion must be an optimal solution because $f$ is the true cost for goal nodes (which have $h = 0$) and all later goal nodes will be at least as expensive.  
+
+Since $f$-costs are nondecreasing along any path also means that we can draw **contours** in the state space (like the contours in a topographic map). Since A* expands the frontier node of lowest $f$-cost, we can see that it fans out from the start node, adding nodes in concentric bands of increasing $f$-cost. 
+
+If C* is the cost of the optimal solution path, we can say the following: 
+
+* A* expands all nodes with fn < C\*
+* A* mught then expand some of the nodes right on the goal contour (where fn = C\*) before selecting a node. 
+
+Completeness requires that there be only finitely many nodes with cost less than or equal to C*, a condition that is true if all step costs exceed some finite $\epsilon$ and if $b$ is finite.
+
+Among algorithms that extend search paths from the root and use the same heuristic information -- A* is optimally efficient for any given consistent heuristic. No other optimal algorithm is guaranteed to expand fewer nodes than it. This is because any algorithm that does not expand all nodes with $f(n) < C$\* runs the risk of missing the optimal solution. 
+
+The complexity of A* often makes it impractical to insist on finding an optimal solution. One can use variants of it that find suboptimal solutions quickly, or one can sometimes design heuristics that are more accurate but not strictly admissible. In any case, the use of a good heuristic provides enormous savings compared to the use of an uninformed search. 
+
+While time complexity is not A*'s main drawback, space complexity is. For this reason, it is not practical for many large scale problems. 
+
+## 3.5.3 | Memory Bounded Heuristic Search
+
+The simplest way to reduce memory requirements for A\* is to adapt the idea of iterative deepening to the heuristic search context, resulting in the **iterative deepening A* (IDA\*)** algorithm.
+
+The main difference between IDA* and standard iterative deepening is that the cutoff used is the $f$-cost($g+h$) rather than the depth. At each iteration, the cutoff value is the smallest $f$-cost of any node that exceeded the cutoff on the previous iteration. 
+
+IDA* is practical for problems with unit step costs and avoids the substational overhead associated with keeping a sorted queue of nodes. 
+
+It suffers the same difficulties with real valued costs as the iterative version of uniform cost search. 
+
+**Recursive Best First Search** is a simple recursive algorithm that attempts to mimic the operation of standard best first search, but using only linear space. 
+
+It is similar to recursive depth first search, but instead of continuing indefinitely down the current path, it uses an $f$-limit variable to keep track of the $f$-value of the best alternative path available from the ancestor of the current node. If the current node exceeds this limit, the recursion unwinds back to the alternative path. As it unwinds, RBFS replaces the $f-$value of eachnode along the path with a backed up value - the best $f$-value of its children. This way, it remembers the best leaf in a forgotten subtree and can decide whether its worth reexpanding at a later time. 
+
+Like A* Tree Search, RBFS is an optimal algorithm if the heuristic function $h(n)$ is admissible. Its space complexity is linear in the depth of the deepest optimal solution, but its time complexity is difficult to characterize since it depends on both the accuracy of the heuristic function and how often the path changes as nodes are expanded. 
+
+Since IDA* and RFBS use little memory, they forget what they have done and may end up reexpanding the same states many times over. 
+
+If we wish to use all available memory, there are the algorithms MA* (memory bounded A\*) and SMA\* (simplified MA\*). SMA\* proceeds like A\*, expanding the best leaf until memory is full. Then it drops the worst leaf node, the one with the highest f-value.  
+
+In practical terms, SMA* is a fairly robust choice for finding optimal solutions, particularly when the state space is a graph, step costs are not uniform, and node generation is expensive compared to the overhead of maintaining the frontier and the explored set. On very hard problems, it may be the case that SMA\* is forced to switch back and forth continually among many candidate solutions, only a small subset of which can fit in memory. That is to say, memory limitations can make a problem intractable from the point of view of computation time. 
+
+## 3.5.4 | Learning to Search Better 
+
+Can an agent learn to search better? Yes, and the method relies on a concept called the **metalevel state space**. Each state in a metalevel state space captures the internal (computational) state of a program that is searching in an object-level state space (such as a map of romania). 
+
+A **metalevel learning** algorithm can help make better choices regarding the internal computational state of a program. The goal of learning is to minimize the **total cost** of problem solving, trading off computational expense and path cost. 
+
+# 3.6 | Heuristic Functions 
+
+## 3.6.1 | The Effect of Heuristic Accuracy on Performance 
+
+One way to characterize the quality of a heuristic is the **effective branching factor b\*. ** If the total number of nodes generated by A* for a particular problem is $N$ and the solution depth is $d$, then $b$\* is the branching factor that the uniform tree of depth $d$ would have in order to contain $N+1$ nodes. Thus, $N + 1 = 1 + b + b^2 + ... + b^d$. 
+
+
+## 3.6.2 | Generating Admissible Heuristics from Relaxed Problems 
+
+How might we invent heuristics mechanically? 
+
+If we were to give the problem fewer restrictions (a **relaxed problem**) then our state space graph for our problem would generate a supergraph of the original state space (the removal of restrictions adds more edges to the graph). Because our relaxed supergraph contains all the edges of the original graph, an optimal solution to the original problem is also a solution in the relaxed problem. Hence, the cost of an optimal solution to a relaxed problem is an admissible heuristic for the original problem. 
+
+If we generate many admissible heuristics, we can let our heuristic be $h(n) = \max\{{h_1(n), ..., h_m(n)\}}$.
+
+## 3.6.3 | Pattern Databases 
+
+We can construct databases with sets of heuristics for solving classes of problems. Basically, given some problem, we can store the exact solution costs for every possible subproblem instance. 
+
+## 3.6.4 | Learning Heuristics from Experience 
+
+We can learn optimal solutions by using data on solving many instances of a problem. Then, from that data, we can construct models which allow us to predict future states. 
+
+
