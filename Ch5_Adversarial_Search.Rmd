@@ -103,4 +103,14 @@ Most game playing programs use lookup tables rather than search for opening and 
 
 # 5.5 | Stochastic Games 
 
+Stochastic games must include **chance nodes** in addition to max and min nodes. Since we can't figure out the best possible move due to chance, we must calculate the expected value of a position. This leads to us generalizing the minimax value for deterministic games to an expecti-minimax value for games with chance nodes.
+
+## 5.5.1 | Evaluation Functions for Games of Chance 
+
+In order to avoid scaling issues in the evaluation function, it must be a linear transformation of the probability of winning from a position. 
+Since we consider all possible values, it takes $O(b^mn^m)$ where $n$ is the number of distinct rolls. This is very inefficient. 
+
+We can apply something like alpha-beta pruning to game trees with chance nodes. If we bound the possible values of our utility function, we can arrive at a bounds for the average without checking all the nodes. 
+
+We can also use **Monte Carlo Simulation**. From the start position (with an alpha-beta or other search algorithm) have the algorithm play thousands of games against itself using random dice rolls. In many cases the resulting win percentages for different positions is a good approximation of the value of the position. 
 
