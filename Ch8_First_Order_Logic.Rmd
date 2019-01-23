@@ -1,0 +1,58 @@
+---
+title: "First-Order Logic"
+author: "Michael Rose"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+_In which we notice that the world is blessed with many objects, some of which are related to other objects, and in which we endeavor to reason about them._
+
+The **Sapir-Whorf** hypothesis claims that our understanding of the world is strongly influenced by the language we speak. Whorf wrote "We cut nature up, organize it into concepts, and ascribe significances as we do, largely because we are parties to an agreement to organize it this way -- an agreement that holds throughout our speech community and is codified in the patterns of our language."
+
+The primary difference between propositional and first order logic lies in the ontological commitment made by each language -- that is, what it assumes about the nature of reality. 
+
+For example, propositional logic assumes that there are facts which either hold or do not hold in the world. First order logic assumes more, namely that the world consists of objects with certain relations among them that their hold or do not hold. 
+
+# 8.2 | Syntax and Semantics of First Order Logic
+
+## 8.2.1 | Models for First Order Logic
+
+The **domain** of a model is the set of objects or **domain elements** it contains. 
+
+![](fologic_objects.png)
+
+## 8.2.2 | Symbols and Interpretations 
+
+The basic syntactic elements of first order logic are: 
+
+Constant symbols which stand for objects
+Predicate symbols which stand for relations 
+Function symbols which stand for functions
+
+A **term** is a logical expression that refers to an object. With terms for referring to objects and predicate symbols for referring to relations, we can put them together to make **atomic sentences** that state facts. An example of an atomic sentence is $Brother(\mathrm{Richard, John})$. 
+
+We can use **logical connectives** to construct more complex sentences, with the same syntax and semantics as in propositional calculus. We can also use **quantifiers** in our atomic sentences $\forall, \exists$.
+
+The act of building a knowledge base in a particular domain and creating a formal representation of it is called **knowledge engineering**. 
+
+# 8.5 | Summary 
+
+This chapter has introduced first order logic, a representation language that is more powerful than propositional logic. 
+
+- Knowledge representation languages should be declarative, compositional, expressive, context independent, and unambiguous. 
+
+- Logics differ in their ontological and epistemological commitments. While propositional logic commits only to the existence of facts, first order logic commits to the existence of objects and relations and thereby gains expressive power. 
+
+- The syntax of first order logic builds on that of propositional logic. It adds terms to represent objects, and has universal and existential quantifiers to construct assertions about all or some of the possible values for the quantified variables. 
+
+- A possible world, or model, for first order logic includes a set of objects and an interpretation that maps constant symbols to objects, predicate symbols to relations among objects, and function symbols to functions on objects. 
+
+- An atomic sentence is true just when the relation named by the predicate holds between the objects named by the terms. Extended interpretations, which map quantifier variables to objects in the model, define the truth of quantified sentences. 
+
+- Developing a knowledge base in first order logic requires a careful process of analyzing the domain, choosing a vocabulary, and encoding the axioms required to support the desired inferences. 
+
