@@ -215,4 +215,86 @@ then we say that $q(x \to x')$ is in **detailed balance** with $\pi(x)$. It can 
 
 # 14.6 | Relational and First-Order Probability Models 
 
+If we can find a way to combine probability theory with the expressive power of first order representations, we expect to be able to dramatically increase the range of problems that can be handled. 
 
+## 14.6.1 | Possible Worlds 
+
+For Bayesian networks, the possible worlds are assignments of values to variables; for the Boolean case, the possible worlds are those of propositional logic. For a first order probability model, we need the possible worlds to be those of first order logic (a set of objects with relations among them and an interpretation that maps constant symbols to objects, predicate symbols to relations, and function symbols to functions on those objects). The model also needs to define a probability for each such possible world, just as a Bayesian network defines a probability for each assignment of values to variables. 
+
+If we figured out how to do this, we can obtain the probability of any first order logical sentence $\phi$ as a sum over the possible worlds where it is true: 
+
+\begin{center}
+$P(\phi) = \sum\limits_{\omega:\phi\mathrm{ is true in }\omega} P(\omega)$
+\end{center}
+
+The big problem is that the set of first-order models is infinite. Thus the summation above could be infeasible, and specifying a complete, consistent distribution over an infinite set of worlds could be very difficult. 
+
+The next section (14.6.2) explores a way of dealing with this problem by borrowing from the database semantics rather than the standard semantics of first order logic. The database semantics makes a **unique names assumption** which we can adopt for constant symbols. It also assumes **domain closure** - there are no more objects that those which are named. With these we can guarantee a finite set of possible worlds by making the set of objects in each world be exactly the set of constant symbols that are used.  We call models defined in this way **Relational Probability Models**. The most significant difference between the semantics of RPMs and the database semantics is that RPMs do not make the closed-world assumption (assuming every unknown fact is false doesn't make sense in a probabilistic reasoning system).
+
+![Database Semantics](database_semantics.png)
+
+## 14.6.2 | Relational Probability Models 
+
+Like first order logic, RPMs have constant, function, and predicate symbols. We will also assume a **type signature** for each function, a specification of the type of each argument and the function's value. 
+
+Some technical conditions must be observed to guarantee that the RPM defines a proper distribution. First, the dependencies must be acyclic, otherwise the resulting Bayesian network will have cycles and will not define a proper distribution. Second, the dependencies must be well-founded, that is, there can be no infinite ancestor chains, such as might arise from recursive dependencies. Under some circumstances, a fixed-point calculation yields a well-defined probability model for a recursive RPM. 
+
+One approach to doing inference in RPMs is to collect the evidence and query and the constant symbols therein, construct the equivalent Bayes net, and apply any of the inference methods discussed in the chapter. This technique is called **unrolling**. The drawback is that the resulting Bayes net may be very large. Furthermore, if there are many candidate objects for an unknonw relation or function, then some variables in the network may have many parents. 
+
+We can use multiple techniques for improving on generic inference algorithms. 
+
+  1. The presence of repeated substructures in the unrolled Bayes nets means that many of the factors constructed during variable elimination  (and similar kinds of tables constructed by clustering algorithms) will be identical. Effective caching schemes have yielded speedups of three orders of magnitude for large networks. 
+
+  2. Inference methods developed to take advantage of context specific independence in Bayes nets may find many applications in RPMs
+  
+  3. MCMC algorithms have interesting properties when applied to RPMs with relational uncertainty. MCMC samples complete possible worlds, so in each state the relational structure is completely known. Then the relational uncertainty causes no increase in network complexity, and instead the MCMC process includes transitions that change the relational structure, and hence the dependency structure, of the unrolled network. 
+  
+All of these methods assume that the RPM has to be partially or completely unrolled into a Bayesian network. This is analogous to the method of **propositionalization** for first order logical inference. Resolution theorem provers and logic programming systems avoid propositionalizing by instantiating the logical variables only as needed to make the inference go through (they lift the inference process above the ground propositional sentences and make each lifted step do the workd of many ground steps). This idea also applies in probabilistic inference. For example, in the variable elimination algorithm, a lifted factor can represent an entire set of ground factors that assign probabilities to random variables in the RPM, where those random variables differ only in the constant symbols used to construct them. 
+
+## 14.6.3 | Open Universe Probability Models 
+
+**Open Universe Probability Models** or OUPM's are based on the standard semantics of first order logic. A language for OUPMs provides a way of writing such models easily while guaranteeing a unique, consistent probability distribution over the infinite space of possible worlds. 
+
+In essence, a Bayes net generates each possible world, event by event in the topological order defined by the network structure, where each event is an assignment of a vlaue to a variable. An RPM extends this to entire sets of events, defined by the possible instantiations of the logical variables in a given predicate or function. OUPMs go further by allowing generate steps that add objects to the possible world under construction, where the number and type of objects may depend on the objects that are already in the world. That is, the event being generated is not the assignment of a value to the variable, but the very existence of objects. 
+
+Subject to technical conditions of acyclicity and well foundedness similar to those for RPMs, open universe models of this kind define a unique distribution over possible worlds. Research in this area is still at an early stage, but it is possible that first order probabilistic reasoning yields a tremendous increase in the effectiveness of AI systems at handling uncertain information. 
+
+# 14.7 | Other Approaches to Uncertain Reasoning 
+
+## 14.7.1 | Rule-Based Methods for Uncertain Reasoning 
+
+Logical systems in general, and logical rule-based systems in particular, have 3 desirable properties: 
+
+- Locality: In logical systems, if we have a rule of the form $A \implies B$, we can conclude B given evidence A without worrying about any other rules. In probabilistic systems, we need to consider all the evidence 
+
+- Detachment: Once a logical proof is found for a proposition, it can be used regardless of how it was derived. It can be detached from its justification. With probabilities, the source of the evidence for a belief is important for subsequent reasoning
+
+- Truth-functionality: In logic, the truth of complex sentences can be computed from the truth of the components. Probability combinations generally do not work this way, unless udner strong global independence assumptions. 
+
+## 14.7.2 | Representing Ignorance: Dempster-Shafer Theory
+
+The **Dempster-Shafer Theory** is designed to deal with the distinction between uncertainty and ignorance. Rather than computing the probability of a proposition, it computes the probability that the evidence supports the proposition. This measure of belief is called a **belief function**. These reasoning systems are skeptical in a way that has some intuitive appeal. The underpinnings are similar to probability theory, with the main difference being that instead of assigning probabilities to possible worlds, the theory assigns **masses** to sets of possible events. The masses must still add up to 1 over all possible events, and $Bel(A)$ is defined to be the sum of masses for all events that are subsets of (i.e. that entail) A, including A itself. 
+
+## 14.7.3 | Representing Vagueness: Fuzzy Sets and Fuzzy Logic
+
+**Fuzzy Set Theory** is a means of specifying how well an object satisfies a vague description. **Fuzzy Logic** is a method for reasoning with logical expressions describing membership in fuzzy sets. **Fuzzy Control** is a methodology for constructing control systems in which the mapping between real-valued input and output parameters is represented by fuzzy rules.
+
+# 14.8 | Summary 
+
+- A Bayesian network is a directed acyclic graph whose nodes correspond to random variables; each node has a conditional distribution for the node, given its parents 
+
+- Bayesian networks provide a concise way to represent **conditional independence** relationships in the domain 
+
+- A Bayesian network specifies a full joint distribution; each joint entry is defined as the product of the corresponding entries in the local conditional distributions. A Bayesian network is often exponentially smaller than an explicitly enumerated joint distribution. 
+
+- Many conditional distributions can be represented compactly by canonical families of distributions. Hybrid Bayesian networks, which include both discrete and continuous variables, use a variety of canonical distributions. 
+
+- Inference in Bayesian networks means computing the probability distributions of a set of query variables, given a set of evidence variables. Exact inference algorithms, such as variable elimination, evaluate sums of products of conditional probabilities as efficiently as possible. 
+
+- In polytrees (singly connected networks), exact inference takes time linear in the size of the network. In the general case, the problem is intractable. 
+
+- Stochastic approximation techniques such as likelihood weighting and Markov Chain Monte Carlo can give reasonable estimates of the true posterior probabilities in a network and can cope with much larger networks than can exact algorithms. 
+
+- Probability theory can be combined with representational ideas from first order logic to produce very powerful systems for reasoning under uncertainty. Relational probability models include representational restrictions that guarantee a well defined probability distribution that can be expressed as an equivalent Bayesian network. Open universe probability models handle existence and identity uncertainty, defining probability distributions over the infinite space of first order possible worlds. 
+
+- Various alternative systems for reasoning under uncertainty have been suggested. Generally speaking, truth functional systems are not well suited for such reasoning 
