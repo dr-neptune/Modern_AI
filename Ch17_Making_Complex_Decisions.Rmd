@@ -255,3 +255,48 @@ The general algorithm for finxing maximin equilibria in zero-sum games is somewh
 The simplest kind of multimove game is the **repeated game**, in which players face the same choice repeatedly, but each time with knowledge of the history of all players' previous choices. A strategy profile for a repeated game specifies an action choice for each player at each time step for every possible history of previous choices. As with Markov Decision Processes, payoffs are additive over time. 
 
 ## 17.5.3 | Sequential Games 
+
+In general, a game consists off a sequence of turns that need not all be the same. Games are best represented by a game tree, which some game theorists call the **extensive form**. The tree includes an initial state $s_0$, a function $\mathrm{Player(s)}$ that tells which player has the move, a function $\mathrm{Action(s)}$ enumerating the possible actions, a function $\mathrm{Result(s, a)}$ that defines the transition to a new state, and a partial function $\mathrm{Utility(s, p)}$, which is defined only on terminal states - to give the payoff for each player. The key idea of extensive form that sets it apart from the game trees of chapter 5 is the representation of partial observability. The extensive form allows us to find solutions because it represents the belief states (game theorists call them **information sets**) of all players at once. From this representation we can find equilibrium solutions.
+
+In chapter 5 we saw that alpha-beta search could handle games of perfect information with huge game trees by generating trees incrementally, pruning some branches, then heuristically evaluating nonterminal nodes. This approach doesn't work well for games with imperfect information because: 
+
+1. It is harder to prine because we need to consider mixed strategies that combine multiple branches, not a pure strategy that always chooses the best branch. 
+2. It is harder to heuristically evaluate a nonterminal node, because we are dealing with information sets, not individual states. 
+
+The alternative representation of extensive games is called the **sequence form**, and it is linear only in the size of the tree, rather than exponential. Instead of representing strategies, it represents paths through the tree; the number of paths is equal to the number of terminal nodes. Standard linear programming techniques can be applied to this representtion, such that poker variants with 25000 states can be solved in a minute or two. This is an exponential speedup over normal form approaches, but still falls short for handling full poker with $10^{18}$ states. 
+
+Extensive game form is one of the most complete representations we have seen so far: it can handle partially observable, multiagent, stochastic, sequential, dynamic environments. There are however two limitations of game theory: 
+
+1. It does not deal will with continuous states and actions
+2. It assumes the game is known. 
+
+# 17.6 | Mechanism Design 
+
+Given that agents pick rational strategies, what game should we design? More specifically, we would like to design a game whose solutions, consisting of each agent pursuing its own rational strategy, result in the maximization of some global utility function. This problem is called **mechanism design**, or sometimes **inverse game theory**. 
+
+Formally, a **mechanism** consists of 
+
+1. A language for describing the set of allowable strategies that an agent may adopt
+2. A distinguished agent, called the **center**, that collects reports of strategy choices from the agents in the game
+3. An outcome rule, known to all agents, that the center uses to determine the payoffs to each agent, given their strategy choices. 
+
+# 17.7 | Summary 
+
+- Sequential decision problems in uncertain environments, also called **Markov Decision Processes**, or MDPs, are defined by a transition model specifying the probabilistic outcomes of actions and a reward function specifying the reward in each state. 
+
+- The utility of a state sequence is the sum of all rewards over a sequence, possibly discounted over time. The solution of an MDP is a policy that associates a decision with every state that the agent might reach. An optimal policy maximizes the utility of the state sequences encountered when it is executed. 
+
+- The utility of a state is the expected utility of the state sequences encountered when an optimal policy is executed, starting in that state. The value iteration algorithm for solving MDPs works by iteratively solving the equations relating the utility of each state to those of its neighbors. 
+
+- Policy iteration alternates between calculating the utilities of states under the current policy and improving the current policy with respect to current utilities. 
+
+- Partially observable MDPs, or POMDPs, are much more difficult to solve than MDPs. They can be solved by conversion to an MDP in the continuous space of belief states; both value iteration and policy iteration algorithms have been devised. Optimal behavior in POMDPs includes information gathering to reduce uncertainty and therefore make better decisions in the future 
+
+- A decision theoretic agent can be constructed for POMDP environments. The agent uses a dynamic decision network to represent the transition and sensor models, to update its belief state, and to project forward possible action sequences
+
+- Game theory describes rational behavior for agents in situations in which multiple agents interact simultaneously. Solutions of games are Nash equilibria - strategy profiles in which no agent has an incerntive to deviate from a specified strategy 
+
+- Mechanism design can be used to set the rules by which agents will interact, in order to maximize some global utility through the operation of individually rational agents. Sometimes mechanisms exist that achieve this goal without requiring each agent to consider the choices made by other agents. 
+
+
+
