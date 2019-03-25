@@ -64,7 +64,7 @@ Generally, we can use the ADP agent to provide a measurement standard with which
 
 ADP uses maximum likelihood estimation to learn the transition model. By choosing a policy solely based on the estimated model, it is acting a if the model were correct. This is not necessarily a good idea. Instead, it might be a good idea to choose a policy that, while not optimal for the model estimated by maximum likelihood, works reasonably well for the whole range of models that have a reasonable chance of being the true model. There are two mathematical approaches that have this flavor: 
 
-**Bayesian Reinforcement Learning** assumes a prior probability $P(h)$ for each hypothesis $h$ about what the true model is. Then, with Bayes rule we obtain the posterior $P(h | e)$. Then, if the aget has decided to stop learning, the optimal policy is the one that gives the highest expected utility. 
+**Bayesian Reinforcement Learning** assumes a prior probability $P(h)$ for each hypothesis $h$ about what the true model is. Then, with Bayes rule we obtain the posterior $P(h | e)$. Then, if the agent has decided to stop learning, the optimal policy is the one that gives the highest expected utility. 
 
 Let $u_h^{\pi}$ be the expected utility, averaged over all possible start states, obtained by executing policy $\pi$ in model $h$. Then we have 
 
@@ -92,13 +92,13 @@ where $\alpha$ is the learning rate parameter. Since this update rule uses the d
 
 All temporal difference methods work by adjusting the utility estimates towards the ideal equilibrium that hold locally when the utility estimates are correct. Note that TD doesn't need a transition model to perform its updates. The environment supplies the connection between neighboring states in the form of observed transitions. 
 
-The ADP and TD approaches are closely related. Both try to make local adjustments to utility estimates in order to make each state agree with its successors. One difference is that TD adjusts a state to agree with its observed succesor, whereas ADP adjusts the state to agree with all of the successors that might occur, weighted by their probabilities. This difference disappears when the effects of TD adjustments are averaged over a large number of transitions, because the frequency of each succesor in the set of transitions is approximately proportional to its probability. 
+The ADP and TD approaches are closely related. Both try to make local adjustments to utility estimates in order to make each state agree with its successors. One difference is that TD adjusts a state to agree with its observed successor, whereas ADP adjusts the state to agree with all of the successors that might occur, weighted by their probabilities. This difference disappears when the effects of TD adjustments are averaged over a large number of transitions, because the frequency of each successor in the set of transitions is approximately proportional to its probability. 
 
 Another difference is that whereas TD makes a single adjustment per observed transition, ADP makes as many as it needs to restore consistency between the utility estimates $U$ and the environment model $P$. Although the observed transition makes only a local change in $P$, its effects might need to be propagated throughout $U$. Thus, TD can be viewed as a crude but efficient first approximation to ADP. 
 
 We can make more efficient versions of ADP by directly approximating the algorithms for value iteration or policy iteration. Even though the value iteration algorithm is efficient, it is intractable for large state spaces. Since each of the necessary adjustments to state space are tiny, we can generate reasonably good answers* quickly by bounding the number of adjustments made after each observed transition. 
 
-We can also use a heuristic to rank the possible adjustments so as to carry out only the most significant ones. The **prioritized sweeping** heuristic prefers to make afjustments to states whose likely successors have just undergone a large adjustment in their own utility estimates.
+We can also use a heuristic to rank the possible adjustments so as to carry out only the most significant ones. The **prioritized sweeping** heuristic prefers to make adjustments to states whose likely successors have just undergone a large adjustment in their own utility estimates.
 
 Using adjustments like this, we can use approximate ADP to have state spaces several magnitudes larger than the original.
 
@@ -108,7 +108,7 @@ A passive learning agent has a fixed policy that determines its behavior. An act
 
 ## 21.3.1 | Exploration
 
-Following the optimal policy for the learned model at each step is a **greedy** approach. Repeated experiments show that the greedy agent very seldom converges to the optimal policy for the environment and sometimes converges to very bad policies. What the greedy agent overlooks is that actions do more than provide rewards according to the current learned model; they also contibute to learning the true model by affecting the percepts that are received. By improving the model, the agent will receive greater rewards in the future. An agent therefore must make a tradeoff between **exploitation** to maximize its reward, and **exploration** to maximize its long term wellbeing. Pure exploitation risks getting stuck in a rut, and pure exploration to improve ones knowledge is of no use if one never puts that knowledge into practice. 
+Following the optimal policy for the learned model at each step is a **greedy** approach. Repeated experiments show that the greedy agent very seldom converges to the optimal policy for the environment and sometimes converges to very bad policies. What the greedy agent overlooks is that actions do more than provide rewards according to the current learned model; they also contribute to learning the true model by affecting the percepts that are received. By improving the model, the agent will receive greater rewards in the future. An agent therefore must make a tradeoff between **exploitation** to maximize its reward, and **exploration** to maximize its long term wellbeing. Pure exploitation risks getting stuck in a rut, and pure exploration to improve ones knowledge is of no use if one never puts that knowledge into practice. 
 
 Can we find an optimal exploration policy that strikes the right balance between exploration and exploitation? This question is studied in depth in the subfield of statistical decision theory that deals with **bandit problems**. Although bandit problems are difficult to solve to obtain an optimal exploration method, it is possible to come up with a reasonable scheme that will eventually lead to optimal behavior by an agent. 
 
@@ -124,7 +124,7 @@ Let $U^+ (s)$ denote the optimistic estimate of the utility of state $s$, and le
 $U^+ (s) \gets R(s) + \gamma \max_a f(\sum\limits_{s'} P(s' | s, a) U^+(s'), N(s, a))$
 \end{center}
 
-where $f(u, n)$ is called the **exploration function**. It determines how greed is traded off against curiousity.
+where $f(u, n)$ is called the **exploration function**. It determines how greed is traded off against curiosity.
 
 ## 21.3.2 | Learning an Action-Utility Function
 
@@ -164,4 +164,106 @@ The difference from Q learning is subtle. Whereas Q-learning backs up the best Q
 
 # 21.4 | Generalization in Reinforcement Learning
 
+One way to handle problems with very large state spaces is with **function approximation**. The representation is viewed as approximate because it might not be the case that the true utility function or Q-function can be represented in the chosen form. The compression achieved by a function approximator allows the learning agent to generalize from states it has visited to states it has not visited. The most important aspect of function approximation is not that it requires less space, but that it allows for inductive generalization over input states. 
 
+For reinforcement learning, it makes more sense to use an online learning algorithm that updates the parameters after each trial. We can use the **Widrow-Hoff Rule**, or the **Delta Rule** for online least squares estimation: 
+
+\begin{center}
+$\theta_i \gets \theta_i - \alpha \frac{\partial E_j (s)}{\partial \theta_i} = \theta_i + \alpha(u_j (s) - \hat{U}_\theta(s)) \frac{\partial \hat{U}_\theta (s)}{\partial \theta_i}$
+\end{center}
+
+where $u_j(s)$ is the observed total reward from state $s$ onward in the $j$the trial, and $\hat{U}_\theta(s)$ is the linear function approximator. Then we get three simple update rules: 
+
+\begin{center}
+$\theta_0 \gets \theta_0 + \alpha(u_j(s) - \hat{U}_\theta(s))$
+
+$\theta_1 \gets \theta_1 + \alpha(u_j(s) - \hat{U}_\theta(s))x$
+
+$\theta_2 \gets \theta_2 + \alpha(u_j(s) - \hat{U}_\theta(s))y$
+\end{center}
+
+Note that changing the parameters $\theta$ in response to an observed transition between two states also changes the values of $\hat{U}_\theta$ for every other state.
+
+We can apply these ideas of function approximation equally well to temporal difference learners. 
+
+The new versions of the TD and Q-learning equations are given by 
+
+\begin{center}
+$\theta_i \gets \theta_i + \alpha[R(s) + \gamma \hat{U}_\theta(s') - \hat{U}_\theta (s)] \frac{\partial \hat{U}_\theta (s)}{\partial \theta_i}$
+\end{center}
+
+for utilities and 
+
+\begin{center}
+$\theta_i \gets \theta_i + \alpha[R(s) + \gamma  \max\limits_{a'} \hat{Q}_\theta(s', a') - \hat{Q}_\theta (s, a)] \frac{\partial \hat{Q}_\theta (s, a)}{\partial \theta_i}$
+\end{center}
+
+For passive TD learning, the update rule can be shown to converge to the closest possible approximation to the true function when the function approximator is linear in the parameters. With active learning and nonlinear functions such as neural networks, there is no guarantee.
+
+Function approximation can also be helpful for learning a model of the environment. Learning a model for an observable environment is a supervised learning problem, because the next percept gives the outcome state.
+
+For a partially observable environment, the learning problem is much more difficult. If we know what the hidden variables are and how they are causally related to each other and the observed variables, then we can fix the structure of a dynamic Bayesian network and use the EM algorithm to learn the parameters. 
+
+# 21.5 | Policy Search
+
+In policy search, the idea is to keep twiddling the policy as long as performance improves, and then stop. 
+
+Remember that a policy $\pi$ is a function that maps states to actions. We are interested primarily in parameterized representations of $\pi$ that have fewer parameters than there are states in the state space. As an example, we could represent $\pi$ by a collection of parameterized Q-functions, one for each action, and take the action with the highest predicted value: 
+
+\begin{center}
+$\pi (s) = \max\limits_a \hat{Q}_\theta (s, a)$
+\end{center}
+
+One problem with policy representations of the kind above is that the policy is a discontinuous function of the parameters where the actions are discrete. As a result, there will be values of $\theta$ such that an infinitesimal change in $\theta$ causes the policy to switch from one action to another. This means that the value of the policy may change discontinuously, making gradient-based search difficult. 
+
+For these reasons, policy search methods often use a **stochastic policy** representation $\pi_\theta(s, a)$ which specifies the probability of selection action $a$ in state $s$. One popular representation is the softmax function:
+
+\begin{center}
+$\pi_\theta(s, a) = \frac{e^{\hat{Q}_\theta(s, a')}}{\sum\limits_{a'}e^{\hat{Q}_\theta (s, a')}}$
+\end{center}
+
+Now we can look at methods for improving the policy. Suppose we have a deterministic policy and a deterministic environment. Let $p(\theta)$ be the **policy value**, i.e. the expected reward-to-go when $\pi_\theta$ is executed. If we can derive an expression for $p(\theta)$ in closed form, then we have a standard optimization problem. We can follow the **policy gradient** vector $\nabla_\theta p(\theta)$ provided $p(\theta)$ is differentiable.
+
+Alternatively, if $p(\theta)$ is not available in closed form, we can evaluate $\pi_\theta$ by simply executing it and overserving the accumulated reward. We can then follow the **empirical gradient** by hill climbing -- i.e. evaluating the change in policy value for small increments in each parameter. With the usual caveats, the process will converge to a local optimum in policy space. 
+
+For the case of a stochastic policy $\pi_\theta(s, a)$, it is possible to obtain an unbiased estimate of the gradient at $\theta$, $\nabla_\theta p(\theta)$, directly from the results of trials executed at $\theta$. 
+
+Suppose we have a case with a nonsequential environment in which the reward $R(a)$ is obtained immediately after doing action $a$ in the start state $s_0$. In this case, the policy value is just the expected value of the reward, and we have 
+
+\begin{center}
+$\nabla_\theta p(\theta) = \nabla_\theta \sum\limits_a \pi_\theta (s_0, a) R(a) = \sum\limits_a (\nabla_\theta \pi_\theta (s_0, a)) R(a)$
+\end{center}
+
+Next we approximate the summation by samples generated from the probability distribution defined by $\pi_\theta(s_0, a)$. Suppose we have $N$ trials in all and the action taken on the $j$the trial is $a_j$. Then
+
+\begin{center}
+$\nabla_\theta p(\theta) \approx \frac{1}{N} \sum\limits_{j = 1}^N \frac{(\nabla_\theta \pi_\theta (s_0, a_j)) R(a_j)}{\pi_\theta (s_0, a_j)}$
+\end{center}
+
+Thus, the true gradient of the policy value is approximated by the sum of terms involving the gradient of the action-selection probability in each trial. For the sequential case this generalizes to 
+
+\begin{center}
+$\nabla_\theta p(\theta) \approx \frac{1}{N} \sum\limits_{j = 1}^N \frac{(\nabla_\theta \pi_\theta (s, a_j)) R(s)}{\pi_\theta (s, a_j)}$
+\end{center}
+
+for each state $s$ visited, where $a_j$ is executed in $s$ on the $j$the trial and $R_j (s)$ is the total reward received from state $s$ onwards in the $j$the trial. 
+
+# 21.7 | Summary 
+
+- The overall agent design dictates the kind of information that must be learned. The three main designs covered here are the model based design, using a model $P$ and a utility function $U$; the model free design, using an action utility function $Q$; and the reflex design, using a policy $\pi$
+
+- Utilities can be learned using 3 approaches: 
+  
+  - Direct utility estimation uses the total observed reward to go for a given state as direct evidence for learning its utility
+  
+  - Adaptive dynamic programming learns a model and a reward function from observations and then uses value or policy iteration to obtain the utilities of states imposed through the neighborhood structure of the environment
+  
+  - Temporal difference methods update utility estimates to match those of successor states. They can be viewed as simple approximations to the ADP approach that can learn without requiring a transition model. Using a learned model to generate pseudoexperiences can, however, result in faster learning 
+  
+- Action utility functions, or Q-functions can be learned by an ADP approach or a TD approach. With TD, Q-learning requires no model in either the learning or action-selection phase. This simplifies the learning problem but potentially restricts the ability to learn in complex environments, because the agent cannot simulate the results of possible courses of action. 
+
+- When the learning agent is responsible for selecting actions while it learns, it must trade off the estimated value of those actions against the potential for learning useful  new information. An exact solution of the exploration problem is infeasible, but some simple heuristics do a reasonable job.
+
+- In large state spaces, reinforcement learning algorithms must use an approximate functional representation in order to generalize over states. The temporal difference signal can be used directly to update parameters in representations such as neural networks.
+
+- Policy search methods operate directly on a representation of the policy, attempting to improve it based on observed performance. The variation in the performance in a stochastic domain is a serious problem; for simulated domains this may be overcome by fixing the randomness in advance. 
