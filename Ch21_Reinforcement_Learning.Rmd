@@ -116,14 +116,52 @@ Technically, any such scheme must be greedy in the limit of infinite exploration
 
 There are several GLIE schemes. One of the simplest is to have the agent choose a random action a fraction $1/t$ of the time and to follow the greedy policy otherwise. While this converges, it does so slowly. 
 
-A more sensible approach is to give some weight to actions that the agent has not tried very often, while tending to avoid actions that are believed to be of low utility. This can be implemented by altering the constraint equation such that it assigns a higher utility estimate to relatively unexplored state action pairs. 
+A more sensible approach is to give some weight to actions that the agent has not tried very often, while tending to avoid actions that are believed to be of low utility. This can be implemented by altering the constraint equation such that it assigns a higher utility estimate to relatively unexplored state action pairs. This amounts to an optimistic prior over the possible environments and causes the agent to believe initially as if there were wonderful rewards scattered all over the place.
 
+Let $U^+ (s)$ denote the optimistic estimate of the utility of state $s$, and let $N(s, a)$ be the number of times action $a$ has been tried in state $s$. Then we can rewrite the update equation for value iteration in an ADP learning agent as 
 
+\begin{center}
+$U^+ (s) \gets R(s) + \gamma \max_a f(\sum\limits_{s'} P(s' | s, a) U^+(s'), N(s, a))$
+\end{center}
 
+where $f(u, n)$ is called the **exploration function**. It determines how greed is traded off against curiousity.
 
+## 21.3.2 | Learning an Action-Utility Function
 
+Now that we have an active ADP agent, we seek to construct an active temporal difference learning agent. To first change from the passive case is that the agent is no longer equipped with a fixed policy, so if it learns a utility function $U$, it will need to learn a model in order to be able to choose an action based on $U$ via one step look ahead. The TD update rule stays the same. 
 
+There is an alternative TD method, called **Q-learning**, which leans an action-utility representation instead of learning utilities. Let $Q(s, a)$ denote the value of doing action $a$ in state $s$. Q-values are directly related to utility values as follows:
 
+\begin{center}
+$U(s) = \max_a Q(s, a)$
+\end{center}
 
+A TD agent that learns a Q-function does not need a model of the form $P(s' | s, a)$, either for learning or for action selection. For this reason, Q-learning is called a **model-free** method. The constraint equation is
+
+\begin{center}
+$Q(s, a) = R(s) + \gamma \sum\limits_{s'} P(s' | s, a) \max\limits_{a'}Q(s', a)$
+\end{center}
+
+We can use this equation directly as an update equation for an iteration process that calculates exact Q-values, given an estimated model. This does require that a model also be learned, since the equation uses $P(s' | s, a)$.
+
+The temporal-difference approach requires no model of state transitions - all it needs are the Q values. Then the update equation for TD Q-learning is 
+
+\begin{center}
+$Q(s, a) \gets Q(s, a) + \alpha(R(s) + \gamma \max\limits_{a'} Q(s', a') - Q(s, a))$
+\end{center}
+
+which is calculated whenever action $a$ is executed in state $s$ leading to state $s'$. 
+
+Q-learning has a close relative called **SARSA** (State-Action-Reward-State-Action). The update rule for SARSA is
+
+\begin{center}
+$Q(s, a) \gets Q(s, a) + \alpha(R(s) + \gamma Q(s', a') - Q(s, a))$
+\end{center}
+
+where $a'$ is the action actually taken in state $s'$. The rule is applied at the end of each $s, a, r, s', a'$ quintuplet.
+
+The difference from Q learning is subtle. Whereas Q-learning backs up the best Q-value from the state reached in the observed transition, SARSA waits until an action is actually taken and backs up the Q value for that action. Q-learning is more flexible than SARSA, in the sense that a Q-learning agent can learn how to behave well even when guided by a random or adversarial exploration policy. 
+
+# 21.4 | Generalization in Reinforcement Learning
 
 
